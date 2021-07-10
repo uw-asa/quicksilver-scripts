@@ -50,20 +50,19 @@ if ( $env = getenv('PANTHEON_ENVIRONMENT') ) {
             // Network's main site - or maybe a subdir site - handled above
             if ($site['domain'] == $main_site_to) {
                 continue;
-
-            // dev or test site, <site>.[dev|test].cms[1|2].asa.uw.edu
-            // or pending live site, <site>.cms[1|2].asa.uw.edu
-            } elseif (preg_match('/^([^\.\s]+)\.(?:dev\.|test\.|)cms\d+\.asa\.uw\.edu$/', $site['domain'], $matches)) {
-                $site['newdomain'] = "{$matches[1]}.{$env}.{$asa_domain}";
-
-            // live site, <site>.uw.edu or <site>.washington.edu
-            } elseif (preg_match('/^(?:dev\.)?([^\.\s]+)\.(?:uw|washington)\.edu$/', $site['domain'], $matches)) {
-                $site['newdomain'] = "{$matches[1]}.{$env}.{$asa_domain}";
-
-            } else {
-                echo "Don't know how to translate site {$site['domain']}, skipping\n";
-                continue;
             }
+
+            $parts = explode('.', $site['domain']);
+            $sitename = array_shift($parts);
+            while (preg_match('/^(dev|test)$/', $sitename)) {
+                $sitename = array_shift($parts);
+            }
+
+            if (preg_match('/^\w+-(\w+)-asa-uw$/', $sitename, $matches)) {
+                $sitename = $matches[1];
+            }
+
+            $site['newdomain'] = "{$sitename}.{$env}.{$asa_domain}";
 
             if ($site['newdomain'] == $site['domain']) {
                 echo "Not replacing {$site['domain']}, already done\n";
