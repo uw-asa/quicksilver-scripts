@@ -110,7 +110,7 @@ $context_opts = array(
 $sites = json_decode(exec(WPCLI . " site list --format=json --fields=blog_id,url,domain"), true);
 
 foreach($sites as &$site) {
-    $blogname = get_bloginfo('name');
+    $blogname = htmlspecialchars_decode(get_bloginfo('name'), ENT_NOQUOTES);
     echo "\n\nUpdating role groups for {$site['url']} -- {$blogname}\n";
 
     $site_stem = WP_SAML_AUTH_UW_GROUP_STEM.'_'.site_slug();
