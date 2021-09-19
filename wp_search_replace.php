@@ -52,15 +52,9 @@ if ( $env = getenv('PANTHEON_ENVIRONMENT') ) {
                 continue;
             }
 
-            $parts = explode('.', $site['domain']);
-            $sitename = array_shift($parts);
-            while (preg_match('/^(dev|test)$/', $sitename)) {
-                $sitename = array_shift($parts);
-            }
-
-            if (preg_match('/^\w+-(\w+)-asa-uw$/', $sitename, $matches)) {
-                $sitename = $matches[1];
-            }
+            $sitename = preg_replace('/^((dev|test|live)[.-])+/', '', $site['domain']);
+            $sitename = preg_replace('/\.(dev|test|live)\.cms.+$/', '', $sitename);
+            $sitename = preg_replace('/([.-]asa)?[.-](uw|washington)\.(edu|pantheonsite\.io)$/', '', $sitename);
 
             $site['newdomain'] = "{$sitename}.{$env}.{$asa_domain}";
 
