@@ -38,8 +38,12 @@ if ( $env = getenv('PANTHEON_ENVIRONMENT') ) {
         $main_site_to = exec(WPCLI . " config get DOMAIN_CURRENT_SITE");
 
         // Handle the main site and any subdir sites
-        echo "Network replacing {$main_site_from} with {$main_site_to}\n";
-        passthru(WPCLI . " search-replace '{$main_site_from}' '{$main_site_to}' --network --url='{$main_site_from}' --report-changed-only" . DRY_RUN);
+        echo "Updating network domain from '{$main_site_from}' to '{$main_site_to}'\n";
+        passthru(WPCLI . " db query \"UPDATE wp_site SET domain='{$main_site_to}' where domain='{$main_site_from}'\"");
+        passthru(WPCLI . " db query \"UPDATE wp_blogs SET domain='{$main_site_to}' where domain='{$main_site_from}'\"");
+
+        echo "Network replacing '://{$main_site_from}' with '://{$main_site_to}'\n";
+        passthru(WPCLI . " search-replace '://{$main_site_from}' '://{$main_site_to}' --network --url='{$main_site_to}' --report-changed-only" . DRY_RUN);
 
         // Get list of sites
         $sites = json_decode(exec(WPCLI . " site list --url={$main_site_to} --format=json --fields=blog_id,url,domain"), true);
@@ -52,6 +56,7 @@ if ( $env = getenv('PANTHEON_ENVIRONMENT') ) {
                 continue;
             }
 
+            // Remove prefixes and suffixes
             $sitename = preg_replace('/^((dev|test|live)[.-])+/', '', $site['domain']);
             $sitename = preg_replace('/\.(dev|test|live)\.cms.+$/', '', $sitename);
             $sitename = preg_replace('/([.-]asa)?[.-](uw|washington)\.(edu|pantheonsite\.io)$/', '', $sitename);
@@ -63,8 +68,11 @@ if ( $env = getenv('PANTHEON_ENVIRONMENT') ) {
                 continue;
             }
 
-            echo "Replacing {$site['domain']} with {$site['newdomain']}\n";
-            passthru(WPCLI . " search-replace '{$site['domain']}' '{$site['newdomain']}' --url='{$site['domain']}' --report-changed-only" . DRY_RUN);
+            echo "Updating site domain from {$site['domain']} to {$site['newdomain']}\n";
+            passthru(WPCLI . " db query \"UPDATE wp_blogs SET domain='{$site['newdomain']}' where domain='{$site['domain']}'\"");
+
+            echo "Replacing '://{$site['domain']}' with '://{$site['newdomain']}'\n";
+            passthru(WPCLI . " search-replace '://{$site['domain']}' '://{$site['newdomain']}' --url='{$site['newdomain']}' --report-changed-only" . DRY_RUN);
         }
         break;
     }
