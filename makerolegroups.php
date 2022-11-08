@@ -62,6 +62,7 @@ function site_slug() {
 
     $domain = preg_replace('/^((dev|test|live)[.-])+/', '', $domain);
     $domain = preg_replace('/\.(dev|test|live)\.cms.+$/', '', $domain);
+    $domain = preg_replace('/\.cms.+$/', '', $domain);
     $domain = preg_replace('/([.-]asa)?[.-](uw|washington)\.(edu|pantheonsite\.io)$/', '', $domain);
 
     $parts = explode('.', $domain);
