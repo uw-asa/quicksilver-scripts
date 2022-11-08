@@ -59,6 +59,7 @@ if ( $env = getenv('PANTHEON_ENVIRONMENT') ) {
             // Remove prefixes and suffixes
             $sitename = preg_replace('/^((dev|test|live)[.-])+/', '', $site['domain']);
             $sitename = preg_replace('/\.(dev|test|live)\.cms.+$/', '', $sitename);
+            $sitename = preg_replace('/\.cms.+$/', '', $sitename);
             $sitename = preg_replace('/([.-]asa)?[.-](uw|washington)\.(edu|pantheonsite\.io)$/', '', $sitename);
 
             $site['newdomain'] = "{$sitename}.{$env}.{$asa_domain}";
